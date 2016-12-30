@@ -379,6 +379,6 @@ app = webapp2.WSGIApplication([
 	('/', LandingHandler),
 	('/resource/new', ResourceHandler),
 	('/resource/view', ResourceViewHandler),
-	('/resource/rss', ResourceRSSFeedHandler),
+	#~ ('/resource/rss', ResourceRSSFeedHandler),
 	('/reservation/new', ReservationCreateHandler),
 ])
