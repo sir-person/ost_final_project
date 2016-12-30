@@ -4,21 +4,20 @@
 	<title>Home</title>
 </head>
 <body>
-<h2>Welcome {{user.nickname()}} to the shameless Open table rip off!</h2>
-
-
-<table>
+<fieldset>
+<legend><h2>Welcome {{user.nickname()}} to Resource-All-The-Things!</h2></legend>
+<table style="width:100%">
 	<thead></thead>
 	<tbody>
 		<tr>
-			<th>Your Reservations</th><th>All Reservable Resources</th><th> Your Resources</th>
+			<th>Your Reservations</th><th>All Reservable Resources</th><th>Your Resources</th>
 		</tr>
 		<tr>
 		<td style="height: 450px;width: 30%;">
 	<div style="overflow-y:scroll;height:450px;">
 	{% for reservation in reservations %}
 	<section>
- 	 <a href="/resource/view?resource_id={{reservation.resource_key}}">{{reservation.resource_name}} </a><br>
+ 	 <a href="/resource/view?resource_id={{reservation.resource_key}}">{{reservation.resource_name}}</a><br>
   		{{reservation.reserver.nickname()}}<br>
   		{{reservation.start_on}}<br>
   		{{reservation.duration}}
@@ -70,5 +69,6 @@
 <div>
 	<a href="/resource/new"><h3>New Resource</h3></a>
 </div>
+</fieldset>
 </body>
 </html>

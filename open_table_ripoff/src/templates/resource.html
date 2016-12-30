@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>
-		View Resource
-	</title>
+	<title>View Resource</title>
 </head>
 <body>
 <form method="POST" action="/resource/view" >
@@ -15,7 +13,7 @@
 	<tbody>
 		<tr>
 			<td colspan="2" align="center">
-		<h2>{{resource.name}} <a href="/resource/rss?resource_id={{resource.urlsafe}}"><img src="http://icons.iconarchive.com/icons/dakirby309/windows-8-metro/128/Web-RSS-Feed-Metro-icon.png" style="height:20px;width: 20px;"> </a>
+		<h2>Resource: {{resource.name}} <a href="/resource/rss?resource_id={{resource.urlsafe}}"><img src="http://icons.iconarchive.com/icons/dakirby309/windows-8-metro/128/Web-RSS-Feed-Metro-icon.png" style="height:20px;width: 20px;"></a>
 			</h2></td>
 		</tr>
 		<tr> <td>
@@ -34,7 +32,7 @@
 		</td>
 		 <td>
 		 {% if user == resource.owner %}
-		 <input type="text" name="resource_start" placeholder="9:00" pattern="[0-9]{2}:[0-9]{2}" value="{{resource.availability_start_on}}" required /> 
+		 <input type="text" name="resource_start" placeholder="9:00" pattern="[0-9]{1,2}:[0-9]{2}" value="{{resource.availability_start_on}}" required /> 
 		 {% else %}
 		 	{{resource.availability_start_on}}
 		 {% endif %}
@@ -45,7 +43,7 @@
 		</td>
 		 <td>
 		 {% if user == resource.owner %}
-		 <input type="text" name="resource_stop" placeholder="14:00" pattern="[0-9]{2}:[0-9]{2}" value="{{resource.availability_end_on}}" required /> 
+		 <input type="text" name="resource_stop" placeholder="14:00" pattern="[0-9]{1,2}:[0-9]{2}" value="{{resource.availability_end_on}}" required /> 
 		 {% else %}
 		 	{{resource.availability_end_on}}
 		 {% endif %}
@@ -94,10 +92,10 @@
 	<thead></thead>
 	<tbody>
 		<tr>
-			<td>Date</td><td><input type="text" name="reservation_date" pattern="[0-9]{1,2}/[0-9]{1,2}/[0-9]{4} [0-9]+:[0-9]{2}" placeholder="mm/dd/yyyy HH:MM"> </td>
+			<td>Date</td><td><input type="text" name="reservation_date" pattern="[0-9]{1,2}/[0-9]{1,2}/[0-9]{4} [0-9]{1,2}:[0-9]{2}" placeholder="mm/dd/yyyy HH:MM"> </td>
 		</tr>
 		<tr>
-			<td>Duration</td><td><input type="text" name="reservation_duration" placeholder="hours:minutes" pattern="[0-9]+:[0-9]{2}" /> 
+			<td>Duration</td><td><input type="text" name="reservation_duration" placeholder="hours:minutes" pattern="[0-9]{1,2}:[0-9]{2}" /> 
 			<input type="hidden" name="resource_id" value="{{resource.urlsafe}}">
 			</td>
 		</tr>

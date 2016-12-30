@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>
-		New Resource
-	</title>
+	<title>Create Resource</title>
 </head>
 <body>
-<h2>New Resource</h2>
+<fieldset>
+<legend><h2>Create Resource</h2></legend>
 <form method="POST" action="/resource/new" >
 
 {% if resource_feedback %}
@@ -29,5 +28,6 @@
 <div>
 	<a href="/"><h3>Home</h3></a>
 </div>
+</fieldset>
 </body>
 </html>
