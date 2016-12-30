@@ -29,6 +29,12 @@ indexes:
 - kind: Reservation
   properties:
   - name: resource_key
+  - name: end_on
+  - name: start_on
+
+- kind: Reservation
+  properties:
+  - name: resource_key
   - name: start_on
 
 - kind: Resource

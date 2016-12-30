@@ -35,8 +35,7 @@ class LandingHandler(webapp2.RequestHandler):
 		names = dict()
 		for resource in all_query.fetch():
 			names[resource.key.id()] = resource.name
-			if resource.key.id() not in owned_set:
-				all_resources.append(resource.to_html())
+			all_resources.append(resource.to_html())
 
 		reservations = []
 		res_query=Reservation.query(Reservation.reserver == user, Reservation.end_on>datetime.utcnow()+hackey_gmt_offset).order(Reservation.end_on,Reservation.start_on)
@@ -73,7 +72,7 @@ class ResourceViewHandler(webapp2.RequestHandler):
 		resource = key.get()
 
 		reservations = []
-		res_query=Reservation.query(Reservation.resource_key == key).order(Reservation.start_on)
+		res_query=Reservation.query(Reservation.resource_key == key, Reservation.end_on>datetime.utcnow()+hackey_gmt_offset).order(Reservation.end_on,Reservation.start_on)
 		for reservation in res_query.fetch():
 			reservations.append(reservation.to_html())
 
