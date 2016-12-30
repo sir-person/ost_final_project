@@ -34,7 +34,7 @@
 	{% for resource in all_resources %}
 	<section>
  	 <h1>{{resource.recource_name}}</h1>
-  		<p><a href="/resource/edit?resource_id={{resource.urlsafe}}">{{resource.name}}</a><br> Available: {{resource.availability_start_on}} 
+  		<p><a href="/resource/view?resource_id={{resource.urlsafe}}">{{resource.name}}</a><br> Available: {{resource.availability_start_on}} 
   		{{resource.availability_end_on}}
   		<p>
   			{{resource.description}}

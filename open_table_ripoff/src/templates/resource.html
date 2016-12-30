@@ -6,20 +6,24 @@
 	</title>
 </head>
 <body>
-<h2>{{resource.name}}</h2>
 <form method="POST" action="/resource/view" >
-{%if resource_feedback %}
+{% if resource_feedback %}
 	<h4 color="red">{{resource_feedback}}</h4>
-{%endif%}
+{% endif %}
 <table>
 	<thead></thead>
 	<tbody>
+		<tr>
+			<td colspan="2" align="center">
+		<h2>{{resource.name}} <a href="/resource/rss?resource_id={{resource.urlsafe}}"><img src="http://icons.iconarchive.com/icons/dakirby309/windows-8-metro/128/Web-RSS-Feed-Metro-icon.png" style="height:20px;width: 20px;"> </a>
+			</h2></td>
+		</tr>
 		<tr> <td>
 		<strong>Name</strong>
 		</td>
 		 <td>
 		 {% if user == resource.owner %}
-		 <input type="text" name="resource_name" placeholder="Evil Panda" value="{{resource.name}}" required/> 
+		 <input type="text" name="resource_name" placeholder="Resource name" value="{{resource.name}}" required/> 
 		 </td>
 		 {% else %}
 		 	{{resource.name}}
@@ -81,6 +85,7 @@
 	</tbody>
 </table>
 </form>
+<h2>New Reservation</h2>
 <form method="POST" action="/reservation/new">
 {% if reservation_feedback %}
 		<h4 color="red">{{reservation_feedback}}</h4>
@@ -92,7 +97,7 @@
 			<td>Date</td><td><input type="text" name="reservation_date" pattern="[0-9]{1,2}/[0-9]{1,2}/[0-9]{4} [0-9]+:[0-9]{2}" placeholder="mm/dd/yyyy HH:MM"> </td>
 		</tr>
 		<tr>
-			<td>Duration</td><td><input type="text" name="reservation_duration" placeholder="14:00 in hours:minutes" pattern="[0-9]+:[0-9]{2}" /> 
+			<td>Duration</td><td><input type="text" name="reservation_duration" placeholder="hours:minutes" pattern="[0-9]+:[0-9]{2}" /> 
 			<input type="hidden" name="resource_id" value="{{resource.urlsafe}}">
 			</td>
 		</tr>
@@ -104,6 +109,7 @@
 	</tbody>
 </table>
 </form>
+<h2>Reservations</h2>
 	<div style="overflow-y:scroll;height:450px; width: 30%;">
 	{% for reservation in reservations %}
 	<section>

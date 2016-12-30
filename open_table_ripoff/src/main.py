@@ -16,7 +16,7 @@ hackey_gmt_offset= timedelta(hours=-5)
 class LandingHandler(webapp2.RequestHandler):
 
 	def get(self):
-		logging.info(self.request.scheme)
+		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user() 
 		owned_set = set() 
 		if not user:
@@ -25,14 +25,16 @@ class LandingHandler(webapp2.RequestHandler):
 		owned_query = Resource.query(Resource.owner == user).order(-Resource.last_reserved_on)
 		owned_resources = []
 		for resource in owned_query.fetch():
+			owned_set.add(resource.key.id())
 			owned_resources.append( resource.to_html())
 
 		all_query = Resource.query().order(-Resource.last_reserved_on)
 		all_resources = []
 		names = dict()
 		for resource in all_query.fetch():
-			names[resource.key.id()] = resource.name
-			all_resources.append(resource.to_html())
+			if resource.key.id() not in owned_set:
+				names[resource.key.id()] = resource.name
+				all_resources.append(resource.to_html())
 
 		reservations = []
 		res_query=Reservation.query(Reservation.reserver == user, Reservation.end_on>datetime.utcnow()+hackey_gmt_offset).order(Reservation.end_on,Reservation.start_on)
@@ -54,6 +56,7 @@ class LandingHandler(webapp2.RequestHandler):
 class ResourceViewHandler(webapp2.RequestHandler):
 
 	def get(self):
+		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		resource_feedback = self.request.get('resource_feedback')
 		reservation_feedback = self.request.get('reservation_feedback')
 
@@ -83,6 +86,7 @@ class ResourceViewHandler(webapp2.RequestHandler):
 
 
 	def post(self):
+		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()        
 		if not user:
 			webapp2.abort(403)
@@ -97,14 +101,14 @@ class ResourceViewHandler(webapp2.RequestHandler):
 
 		if resource.owner!= user:
 			resource_feedback = 'You do not own this resource'
-			params = {'resource_id': resource_id,'resource_feedback': resouce_feedback}
+			params = {'resource_id': resource_id,'resource_feedback': resource_feedback}
 			self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
 			return
 
 		resource_name = self.request.get('resource_name')
 		if not resource_name:
 			resource_feedback = 'resource name is required'
-			params = {'resource_id': resource_id,'resource_feedback': resouce_feedback}
+			params = {'resource_id': resource_id,'resource_feedback': resource_feedback}
 			self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
 			return
 
@@ -115,7 +119,7 @@ class ResourceViewHandler(webapp2.RequestHandler):
 			resource_stop = datetime.strptime(resource_stop, "%H:%M").time()
 		except Exception as e:
 			resource_feedback = str(e)
-			params = {'resource_id': resource_id,'resource_feedback': resouce_feedback}
+			params = {'resource_id': resource_id,'resource_feedback': resource_feedback}
 			self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
 			return
 
@@ -154,25 +158,29 @@ class ResourceViewHandler(webapp2.RequestHandler):
 class ResourceHandler(webapp2.RequestHandler):
 
 	def post(self):
+		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()    
-		scheme=self.request.scheme
-		host=self.request.host    
-		if not user:
-			webapp2.abort(403)
+		scheme = self.request.scheme
+		host = self.request.host    
 
 		resource_name = self.request.get('resource_name')
 		if not resource_name:
-			webapp2.abort(400)
+			resource_feedback = 'resource name is required'
+			params = {'resource_feedback': resource_feedback}
+			self.redirect("%s://%s/resource/new?%s"%(scheme,host,urllib.urlencode(params)),True)
+			return
 
 		resource_start = self.request.get('resource_start')
-		if not resource_start:
-			webapp2.abort(400)
-		resource_start = datetime.strptime(resource_start, "%H:%M").time()
-
 		resource_stop = self.request.get('resource_stop')
-		if not resource_stop:
-			webapp2.abort(400)
-		resource_stop = datetime.strptime(resource_stop, "%H:%M").time()
+		try:
+			resource_start = datetime.strptime(resource_start, "%H:%M").time()
+			resource_stop = datetime.strptime(resource_stop, "%H:%M").time()
+		except Exception as e:
+			resource_feedback = str(e)
+			params = {'resource_feedback': resource_feedback}
+			self.redirect("%s://%s/resource/new?%s"%(scheme,host,urllib.urlencode(params)),True)
+			return
+
 
 		resource_tags = self.request.get('resource_tags').strip()
 		if resource_tags:
@@ -180,6 +188,7 @@ class ResourceHandler(webapp2.RequestHandler):
 			resource_tags = [token.strip() for token in set(tokens)]
 		else:
 			resource_tags = []
+
 		resource_description = self.request.get('resource_description')	
 		resource = Resource(
 			name = resource_name,
@@ -190,50 +199,35 @@ class ResourceHandler(webapp2.RequestHandler):
 			description = resource_description
 		)
 		k = resource.put()
+		self.redirect("%s://%s/"%(scheme,host),True)
 
-		#Code form the home page load 
-		owned_set = set() 
-		owned_query = Resource.query(Resource.owner == user).order(-Resource.last_reserved_on)
-		owned_resources = []
-		for resource in owned_query.fetch():
-			owned_resources.append( resource.to_html())
 
-		all_query = Resource.query().order(-Resource.last_reserved_on)
-		all_resources = []
-		for resource in all_query.fetch():
-			all_resources.append(resource.to_html())
-
-		reservations_query = Reservation.query(Reservation.owner == user).order(Reservation.start_on)	
-		template_values = {
-			'email' : user.nickname(),
-			'all_resources':all_resources,
-			'owned_resources':owned_resources,
-			'reservations':[],
-		}   
-		template = jinja_environment.get_template('landing_page.html')
-		self.response.out.write(template.render(template_values))
 
 	def get(self):
+		resource_feedback = self.request.get('resource_feedback')
+		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()        
 		if not user:
 			webapp2.abort(403)
 
 		template = jinja_environment.get_template('new_resource.html')
 		template_values = {
-			'email' : user.nickname()
+			'email' : user.nickname(),
+			'resource_feedback': resource_feedback,
 		}   
 		self.response.out.write(template.render(template_values))
 
 
 class ReservationCreateHandler(webapp2.RequestHandler):
 	def post(self):
+		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()        
 		resource_id = self.request.get("resource_id")
-		
 		scheme=self.request.scheme
 		host=self.request.host
 		if not resource_id:
 			self.redirect("%s://%s/"%(scheme,host),True)
+			return
 
 		key = ndb.Key(urlsafe=resource_id)
 		resource = key.get()
@@ -309,6 +303,7 @@ class ReservationCreateHandler(webapp2.RequestHandler):
 
 	#cancel reservation
 	def get(self):
+		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()        
 		reservation_id = self.request.get("reservation_id")
 		resource_id = self.request.get("resource_id")
@@ -326,9 +321,37 @@ class ReservationCreateHandler(webapp2.RequestHandler):
 		params = {'resource_id': resource_id}
 		self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
 
+class ResourceRSSFeedHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.headers['Content-Type'] = "text/xml; charset=utf-8"
+		user = users.get_current_user()        
+		resource_id = self.request.get('resource_id')
+		scheme = self.request.scheme
+		host = self.request.host
+		if not resource_id:
+			webapp2.abort(400)
+		params = {'resource_id': resource_id}
+		resource_link = "%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params))
+		key = ndb.Key(urlsafe=resource_id)
+		resource = key.get()
+
+		reservations = []
+		res_query=Reservation.query(Reservation.resource_key == key).order(Reservation.start_on)
+		for reservation in res_query.fetch():
+			reservations.append(reservation.to_html())
+		resource_html = resource.to_html()
+		resource_html['resource_link'] = resource_link
+		template_values = {
+			'resource': resource_html,
+			'reservations': reservations,
+		}   
+		template = jinja_environment.get_template('rss_feed.xml')
+		self.response.out.write(template.render(template_values))
+
 app = webapp2.WSGIApplication([
 	('/', LandingHandler),
 	('/resource/new', ResourceHandler),
 	('/resource/view', ResourceViewHandler),
+	('/resource/rss', ResourceRSSFeedHandler),
 	('/reservation/new', ReservationCreateHandler),
 ])

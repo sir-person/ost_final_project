@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
-
 <channel>
-  <title>{{resource_name}}</title>
-  <link>{{resource_link}}</link>
-  <description>{{resource_description}}</description>
-  <item>
-    <title>RSS Tutorial</title>
-    <link>http://www.w3schools.com/xml/xml_rss.asp</link>
-    <description>New RSS tutorial on W3Schools</description>
-  </item>
-  <item>
-    <title>XML Tutorial</title>
-    <link>http://www.w3schools.com/xml</link>
-    <description>New XML tutorial on W3Schools</description>
-  </item>
-</channel>
+ <title>{{resource.name}}</title>
+ <description>{{resource.description}}</description>
+ <link>{{resource.resource_link}}</link>
+ <lastBuildDate>{{resource.created_on}} </lastBuildDate>
+ <pubDate>{{resource.update_on}}</pubDate>
+<author>{{resource.owner.nickname()}}</author>
 
+{% for reservation in reservations %}
+ <item>
+  <title>{{resource.name}} on {{reservation.start_on}}</title>
+  <description> {{reservation.reserver.nickname()}} reserved {{resource.name}} on {{reservation.start_on}} for {{reservation.duration}}</description>
+  <link>{{resource.resource_link}}</link>
+  <pubDate>{{resource.created_on}}</pubDate>
+ </item>
+{% endfor %}
+</channel>
 </rss>
