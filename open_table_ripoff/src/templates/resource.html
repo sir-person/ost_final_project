@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		View Resource
+	</title>
+</head>
+<body>
+<h2>{{resource.name}}</h2>
+<form method="POST" action="/resource/view" >
+{%if resource_feedback %}
+	<h4 color="red">{{resource_feedback}}</h4>
+{%endif%}
+<table>
+	<thead></thead>
+	<tbody>
+		<tr> <td>
+		<strong>Name</strong>
+		</td>
+		 <td>
+		 {% if user == resource.owner %}
+		 <input type="text" name="resource_name" placeholder="Evil Panda" value="{{resource.name}}" required/> 
+		 </td>
+		 {% else %}
+		 	{{resource.name}}
+		 {% endif %}
+		  </tr>
+		<tr> <td>
+		<strong>Availability Start</strong>
+		</td>
+		 <td>
+		 {% if user == resource.owner %}
+		 <input type="text" name="resource_start" placeholder="9:00" pattern="[0-9]{2}:[0-9]{2}" value="{{resource.availability_start_on}}" required /> 
+		 {% else %}
+		 	{{resource.availability_start_on}}
+		 {% endif %}
+		 </td>
+		  </tr>
+		<tr> <td>
+		<strong>Availability Stop</strong>
+		</td>
+		 <td>
+		 {% if user == resource.owner %}
+		 <input type="text" name="resource_stop" placeholder="14:00" pattern="[0-9]{2}:[0-9]{2}" value="{{resource.availability_end_on}}" required /> 
+		 {% else %}
+		 	{{resource.availability_end_on}}
+		 {% endif %}
+		 </td>
+		  </tr>
+		<tr> <td>
+		<strong>Tags</strong>
+		</td>
+		 <td>
+		 {% if user == resource.owner %}
+		 <input type="text" name="resource_tags" value="{{resource.tags}}"/> 
+		 </td>
+		  </tr>
+		  {% else %}
+		  	{{resource.tags}}
+		  {% endif %}
+		<tr> <td>
+		<strong>Description</strong>
+		</td>
+		 <td>
+		 {% if user == resource.owner %}
+		 <textarea name="resource_description" rows="4" cols="30" placeholder="Description of your amazing thing-a-ma-bob" required>{{resource.description}}</textarea> 
+		 {% else %}
+		  	{{resource.description}}
+		 {% endif %}
+		 </td>
+		  </tr>
+		{% if user == resource.owner %}
+		<tr><td colspan="2" align="center">
+		<input type="hidden" name="resource_id" value="{{resource.urlsafe}}"> 
+		<input type="submit" value="Update Resource"> 
+		</td>
+		</tr>
+		{% else %}
+
+		{% endif %}
+	</tbody>
+</table>
+</form>
+<form method="POST" action="/reservation/new">
+{% if reservation_feedback %}
+		<h4 color="red">{{reservation_feedback}}</h4>
+{% endif %}
+<table>
+	<thead></thead>
+	<tbody>
+		<tr>
+			<td>Date</td><td><input type="text" name="reservation_date" pattern="[0-9]{1,2}/[0-9]{1,2}/[0-9]{4} [0-9]+:[0-9]{2}" placeholder="mm/dd/yyyy HH:MM"> </td>
+		</tr>
+		<tr>
+			<td>Duration</td><td><input type="text" name="reservation_duration" placeholder="14:00 in hours:minutes" pattern="[0-9]+:[0-9]{2}" /> 
+			<input type="hidden" name="resource_id" value="{{resource.urlsafe}}">
+			</td>
+		</tr>
+	<tr>
+		<td colspan="2" align="center">
+			<input type="submit" value="Reserve Resource">
+		</td>
+	</tr>
+	</tbody>
+</table>
+</form>
+	<div style="overflow-y:scroll;height:450px; width: 30%;">
+	{% for reservation in reservations %}
+	<section>
+ 	 <a href="/resource/view?resource_id={{reservation.resource_key}}">{{reservation.resource_name}} </a><br>
+  		{{reservation.reserver.nickname()}}<br>
+  		{{reservation.start_on}}<br>
+  		{{reservation.duration}}
+		{% if reservation.reserver == user %}
+		<a href="/reservation/new?reservation_id={{reservation.urlsafe}}&resource_id={{reservation.resource_key}}">Cancel</a>
+		{% endif %}
+	</section>
+	<hr>
+	{% endfor %}
+	</div>
+
+<div>
+	<a href="/"><h3>Home</h3></a>
+</div>
+</body>
+</html>

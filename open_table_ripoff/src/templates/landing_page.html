@@ -1,32 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Home Page</title>
+	<title>Home</title>
 </head>
 <body>
-<h2>Welcome to the shameless Open table rip off!</h2>
-<p>
-	
-</p>
-<h3>Your Reservations</h3>
-<div style="overflow-y:scroll;">
-	<ul>
+<h2>Welcome {{user.nickname()}} to the shameless Open table rip off!</h2>
+
+
+<table>
+	<thead></thead>
+	<tbody>
+		<tr>
+			<th>Your Reservations</th><th>All Reservable Resources</th><th> Your Resources</th>
+		</tr>
+		<tr>
+		<td style="height: 450px;width: 30%;">
+	<div style="overflow-y:scroll;height:450px;">
 	{% for reservation in reservations %}
 	<section>
- 	 <h1>{{reservation.recource_name}}</h1>
-  		<p>{{reservation.name}}  {{reservation.start}} to {{reservation.stop}}</p>
-	</section>
-	{% endfor %}
-	</ul>
-</div>
+ 	 <a href="/resource/view?resource_id={{reservation.resource_key}}">{{reservation.resource_name}} </a><br>
+  		{{reservation.reserver.nickname()}}<br>
+  		{{reservation.start_on}}<br>
+  		{{reservation.duration}}
 
-<h3>All Reservable Resources</h3>
-<div style="overflow-y:scroll;">
-	
+	</section>
+	<hr>
+	{% endfor %}
+	</div>
+		</td>
+		<td style="height: 450px;width: 30%;">
+		<div style="overflow-y:scroll;height:450px;">
+
+	{% for resource in all_resources %}
+	<section>
+ 	 <h1>{{resource.recource_name}}</h1>
+  		<p><a href="/resource/edit?resource_id={{resource.urlsafe}}">{{resource.name}}</a><br> Available: {{resource.availability_start_on}} 
+  		{{resource.availability_end_on}}
+  		<p>
+  			{{resource.description}}
+  		</p>
+  		{{resource.tags}}
+  		</p>
+	</section>
+	<hr>
+	{% endfor %}
+</div>	
+		</td>
+		<td style="height: 450px;width: 30%;">
+			<div style="overflow-y:scroll;height:450px;">
+
+	{% for resource in owned_resources %}
+	<section>
+ 	 <h1>{{resource.recource_name}}</h1>
+  		<p><a href="/resource/view?resource_id={{resource.urlsafe}}">{{resource.name}}</a><br> Available: {{resource.availability_start_on}} to 
+  		{{resource.availability_end_on}}
+  		<p>
+  			{{resource.description}}
+  		</p>
+  		{{resource.tags}}
+  		</p>
+	</section>
+	<hr>
+	{% endfor %}
 </div>
-<h3>All of your Resources</h3>
-<div style="overflow-y:scroll;">
-	
+		</td>
+		</tr>
+	</tbody>
+</table>
+<div>
+	<a href="/resource/new"><h3>New Resource</h3></a>
 </div>
 </body>
 </html>
