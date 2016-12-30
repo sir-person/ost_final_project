@@ -4,7 +4,7 @@ class Resource(ndb.Model):
 
 	name = ndb.StringProperty()
 	tags = ndb.StringProperty(repeated = True)
-	#user_id of the creator of this resource
+	#using user property because appengine doesn't let you load by user_id
 	owner = ndb.UserProperty()
 	availability_start_on = ndb.TimeProperty()
 	availability_end_on = ndb.TimeProperty()
@@ -31,8 +31,9 @@ class Resource(ndb.Model):
 
 class Reservation(ndb.Model):
 
-	#user_id of whoever made this reservation
+	#user of whoever made this reservation
 	reserver = ndb.UserProperty()
+	#user of resrouce creator
 	owner = ndb.UserProperty() 
 	resource_key = ndb.KeyProperty()
 	start_on = ndb.DateTimeProperty()

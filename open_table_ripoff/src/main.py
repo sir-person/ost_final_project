@@ -14,7 +14,9 @@ jinja_environment = jinja2.Environment(autoescape=True,
 
 hackey_gmt_offset= timedelta(hours=-5)
 class LandingHandler(webapp2.RequestHandler):
-
+	"""
+	Handles displaying the home page
+	"""
 	def get(self):
 		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user() 
@@ -32,15 +34,15 @@ class LandingHandler(webapp2.RequestHandler):
 		all_resources = []
 		names = dict()
 		for resource in all_query.fetch():
+			names[resource.key.id()] = resource.name
 			if resource.key.id() not in owned_set:
-				names[resource.key.id()] = resource.name
 				all_resources.append(resource.to_html())
 
 		reservations = []
 		res_query=Reservation.query(Reservation.reserver == user, Reservation.end_on>datetime.utcnow()+hackey_gmt_offset).order(Reservation.end_on,Reservation.start_on)
 		for reservation in res_query.fetch():
 			html=reservation.to_html()
-			html['resource_name']= names[reservation.resource_key.id()]
+			html['resource_name'] = names[reservation.resource_key.id()]
 			reservations.append(html)
 
 		template_values = {
@@ -54,7 +56,9 @@ class LandingHandler(webapp2.RequestHandler):
 
 
 class ResourceViewHandler(webapp2.RequestHandler):
-
+	"""
+	Handles displaying the actual resource page
+	"""
 	def get(self):
 		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		resource_feedback = self.request.get('resource_feedback')
@@ -85,6 +89,10 @@ class ResourceViewHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(template_values))
 
 
+	"""
+	Handles editing of resource. Returns to the current 
+	page with feedback, or nothing if there was no error
+	"""
 	def post(self):
 		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()        
@@ -157,6 +165,10 @@ class ResourceViewHandler(webapp2.RequestHandler):
 
 class ResourceHandler(webapp2.RequestHandler):
 
+	"""
+	Handles creation of a resource in the new_resource.html.
+	Returns to Home once an addition is made. Otherwise it returns feedback to the current page
+	"""
 	def post(self):
 		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()    
@@ -219,6 +231,12 @@ class ResourceHandler(webapp2.RequestHandler):
 
 
 class ReservationCreateHandler(webapp2.RequestHandler):
+
+	"""
+	Handles creation of a reservation. It currently allows you to create 
+	reservations in the past for testing that such reservations do not
+	 appear in any view
+	"""
 	def post(self):
 		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()        
@@ -301,7 +319,7 @@ class ReservationCreateHandler(webapp2.RequestHandler):
 		params = {'resource_id': resource_id}
 		self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
 
-	#cancel reservation
+	"""Handles canceling of reservations"""
 	def get(self):
 		self.response.headers['Content-Type'] = "text/html; charset=utf-8"
 		user = users.get_current_user()        
@@ -312,16 +330,26 @@ class ReservationCreateHandler(webapp2.RequestHandler):
 		if not reservation_id:
 			params = {'resource_id': resource_id}
 			self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
+			return
 		key = ndb.Key(urlsafe=reservation_id)
 		reservation = key.get()
+		if user != reservation.reserver:
+			params = {'resource_id': resource_id,'resource_feedback':"You did not reserve this resource"}
+			self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
+			return
+
 		if not reservation:
 			params = {'resource_id': resource_id,'reservation_feedback':'That reservation has already been cancelled'}
 			self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
+			return
+
 		key.delete()
 		params = {'resource_id': resource_id}
 		self.redirect("%s://%s/resource/view?%s"%(scheme,host,urllib.urlencode(params)),True)
 
 class ResourceRSSFeedHandler(webapp2.RequestHandler):
+	
+	"""Handles displaying the rss feed"""
 	def get(self):
 		self.response.headers['Content-Type'] = "text/xml; charset=utf-8"
 		user = users.get_current_user()        
