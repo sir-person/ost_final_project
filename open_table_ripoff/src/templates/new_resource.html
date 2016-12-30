@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		New Resource
+	</title>
+</head>
+<body>
+<h2>New Resource</h2>
+<form method="POST" action="/resource/new" >
+<table>
+	<thead></thead>
+	<tbody>
+		<tr> <td>Name</td> <td> <input type="text" name="resource_name" placeholder="Evil Panda" required/> </td> </tr>
+		<tr> <td>Availibility Start</td> <td> <input type="text" name="resource_start" placeholder="9:00" pattern="[0-9]{2}:[0-9]{2}" required /> </td> </tr>
+		<tr> <td>Availibility Stop</td> <td> <input type="text" name="resource_stop" placeholder="14:00" pattern="[0-9]{2}:[0-9]{2}" required /> </td> </tr>
+		<tr> <td>Tags</td> <td> <input type="text" name="resource_tags" placeholder="tag1,tag1,..."/> </td> </tr>
+		<tr><td colspan="2" align="center"> <input type="submit" name="Add Resource"> </td></tr>
+	</tbody>
+</table>
+</form>
+</body>
+</html>

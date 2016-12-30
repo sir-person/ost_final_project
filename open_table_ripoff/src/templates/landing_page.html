@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Home Page</title>
+</head>
+<body>
+<h2>Welcome to the shameless Open table rip off!</h2>
+<p>
+	
+</p>
+<h3>Your Reservations</h3>
+<div style="overflow-y:scroll;">
+	<ul>
+	{% for reservation in reservations %}
+	<section>
+ 	 <h1>{{reservation.recource_name}}</h1>
+  		<p>{{reservation.name}}  {{reservation.start}} to {{reservation.stop}}</p>
+	</section>
+	{% endfor %}
+	</ul>
+</div>
+
+<h3>All Reservable Resources</h3>
+<div style="overflow-y:scroll;">
+	
+</div>
+<h3>All of your Resources</h3>
+<div style="overflow-y:scroll;">
+	
+</div>
+</body>
+</html>
